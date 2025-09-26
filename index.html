@@ -301,3 +301,328 @@
   </script>
 </body>
 </html>
+
+NEWW CODEE!!!!!
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Karthavya App</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    /* Background with gradient + Indian-style overlay pattern */
+    body {
+      background: linear-gradient(135deg, #ff9933 0%, #ffffff 50%, #138808 100%);
+      background-attachment: fixed;
+    }
+
+    /* Hero background for homepage */
+    .hero-bg {
+      background: linear-gradient(rgba(255, 153, 51, 0.85), rgba(19, 136, 8, 0.85)),
+                  url('https://upload.wikimedia.org/wikipedia/commons/6/65/India_gate_in_New_Delhi_03-2016_img3.jpg');
+      background-size: cover;
+      background-position: center;
+    }
+
+    /* Card style */
+    .card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(8px);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Registration Page -->
+  <div id="registration-page" class="min-h-screen flex items-center justify-center">
+    <div class="card p-8 rounded-2xl shadow-xl w-96">
+      <h1 class="text-2xl font-bold text-center text-green-700 mb-6">Register</h1>
+      <form id="registration-form" class="space-y-4">
+        <input id="name" type="text" placeholder="Full Name" class="w-full p-3 border rounded-xl" required>
+        <input id="username" type="text" placeholder="Username" class="w-full p-3 border rounded-xl" required>
+        <input id="password" type="password" placeholder="Password" class="w-full p-3 border rounded-xl" required>
+        <select id="role" class="w-full p-3 border rounded-xl" required>
+          <option value="">Select Role</option>
+          <option value="citizen">Citizen</option>
+          <option value="authority">Authority</option>
+        </select>
+        <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-xl hover:bg-green-700 transition">Register</button>
+      </form>
+      <p class="mt-4 text-center">Already have an account?
+        <a href="#" onclick="showLogin()" class="text-green-700 font-semibold hover:underline">Login</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Login Page -->
+  <div id="login-page" class="min-h-screen flex items-center justify-center hidden">
+    <div class="card p-8 rounded-2xl shadow-xl w-96">
+      <h1 class="text-2xl font-bold text-center text-green-700 mb-6">Login</h1>
+      <form id="login-form" class="space-y-4">
+        <input id="login-username" type="text" placeholder="Username" class="w-full p-3 border rounded-xl" required>
+        <input id="login-password" type="password" placeholder="Password" class="w-full p-3 border rounded-xl" required>
+        <button type="submit" class="w-full bg-green-600 text-white py-3 rounded-xl hover:bg-green-700 transition">Login</button>
+      </form>
+      <p class="mt-4 text-center">Don't have an account?
+        <a href="#" onclick="showRegistration()" class="text-green-700 font-semibold hover:underline">Register</a>
+      </p>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="dashboard" class="hidden min-h-screen flex">
+    <!-- Sidebar -->
+    <div class="w-64 bg-green-800 text-white p-6 space-y-4">
+      <h2 class="text-2xl font-bold">Karthavya App</h2>
+      <ul id="sidebar-menu" class="space-y-2"></ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-6 relative">
+      <!-- Profile Button -->
+      <div class="absolute top-4 right-6">
+        <button id="profile-btn" class="w-12 h-12 rounded-full bg-green-700 text-white flex items-center justify-center text-lg font-bold"></button>
+        <div id="profile-dropdown" class="hidden absolute right-0 mt-2 bg-white shadow-md rounded-xl p-4 w-48">
+          <p id="profile-info" class="mb-2"></p>
+          <button onclick="logout()" class="w-full bg-red-500 text-white py-2 rounded-xl hover:bg-red-600">Logout</button>
+        </div>
+      </div>
+
+      <!-- Dynamic Page -->
+      <div id="page-content" class="h-full"></div>
+    </div>
+  </div>
+
+  <script>
+    let currentUser = null;
+
+    // Utility: Users
+    function getUsers() {
+      return JSON.parse(localStorage.getItem("users")) || [];
+    }
+    function saveUsers(users) {
+      localStorage.setItem("users", JSON.stringify(users));
+    }
+
+    // Utility: Reports
+    function getReports() {
+      return JSON.parse(localStorage.getItem("reports")) || [];
+    }
+    function saveReports(reports) {
+      localStorage.setItem("reports", JSON.stringify(reports));
+    }
+
+    // Registration
+    function registerUser(e) {
+      e.preventDefault();
+      const name = document.getElementById("name").value.trim();
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+      const role = document.getElementById("role").value;
+
+      let users = getUsers();
+      if (users.find(u => u.username === username)) {
+        alert("⚠️ Username already exists.");
+        return;
+      }
+
+      users.push({ name, username, password, role });
+      saveUsers(users);
+
+      alert("✅ Registered successfully. Please login.");
+      showLogin();
+    }
+
+    // Login
+    function loginUser(e) {
+      e.preventDefault();
+      const username = document.getElementById("login-username").value.trim();
+      const password = document.getElementById("login-password").value.trim();
+
+      let user = getUsers().find(u => u.username === username && u.password === password);
+      if (!user) {
+        alert("❌ Invalid credentials.");
+        return;
+      }
+
+      localStorage.setItem("loggedInUser", JSON.stringify(user));
+      currentUser = user;
+      showDashboard(user);
+    }
+
+    // Show Registration/Login/Dashboard
+    function showLogin() {
+      document.getElementById("registration-page").classList.add("hidden");
+      document.getElementById("login-page").classList.remove("hidden");
+      document.getElementById("dashboard").classList.add("hidden");
+    }
+    function showRegistration() {
+      document.getElementById("registration-page").classList.remove("hidden");
+      document.getElementById("login-page").classList.add("hidden");
+      document.getElementById("dashboard").classList.add("hidden");
+    }
+    function showDashboard(user) {
+      document.getElementById("registration-page").classList.add("hidden");
+      document.getElementById("login-page").classList.add("hidden");
+      document.getElementById("dashboard").classList.remove("hidden");
+
+      setupSidebar(user.role);
+      document.getElementById("profile-btn").innerText = user.name.charAt(0).toUpperCase();
+      document.getElementById("profile-info").innerText = `Hi, ${user.username}`;
+      if (user.role === "citizen") loadHomepage();
+      else loadAuthorityReports();
+    }
+
+    // Sidebar Setup
+    function setupSidebar(role) {
+      let menu = document.getElementById("sidebar-menu");
+      menu.innerHTML = "";
+      if (role === "citizen") {
+        menu.innerHTML += `<li><button onclick="loadHomepage()">Home</button></li>`;
+        menu.innerHTML += `<li><button onclick="loadReportForm()">My Report</button></li>`;
+        menu.innerHTML += `<li><button onclick="loadMyReports()">Submitted Reports</button></li>`;
+      } else {
+        menu.innerHTML += `<li><button onclick="loadAuthorityReports()">Citizen Reports</button></li>`;
+      }
+    }
+
+    // Citizen Pages
+    function loadHomepage() {
+      document.getElementById("page-content").innerHTML = `
+        <div class="hero-bg h-full flex flex-col items-center justify-center text-white rounded-2xl p-12 shadow-lg">
+          <h1 class="text-5xl font-extrabold mb-6">Welcome to Karthavya App</h1>
+          <p class="text-xl text-center max-w-2xl">🇮🇳 "Your Duty, Our Commitment" – Together we build a cleaner, safer, and better India.</p>
+        </div>
+      `;
+    }
+
+    function loadReportForm() {
+      document.getElementById("page-content").innerHTML = `
+        <h2 class="text-2xl font-bold mb-4">Submit an Issue</h2>
+        <form id="report-form" class="space-y-4">
+          <input id="report-title" type="text" placeholder="Title" class="w-full p-3 border rounded-xl" required>
+          <textarea id="report-desc" placeholder="Description" class="w-full p-3 border rounded-xl" required></textarea>
+          <input id="report-location" type="text" placeholder="Location (e.g. MG Road, Bangalore)" class="w-full p-3 border rounded-xl" required>
+          <select id="report-category" class="w-full p-3 border rounded-xl" required>
+            <option value="">Select Category</option>
+            <option value="Waste">Waste</option>
+            <option value="Water">Water</option>
+            <option value="Roads">Roads</option>
+            <option value="Electricity">Electricity</option>
+          </select>
+          <input id="report-photo" type="file" accept="image/*" class="w-full p-3 border rounded-xl">
+          <button type="submit" class="bg-green-600 text-white py-3 px-6 rounded-xl hover:bg-green-700">Submit</button>
+        </form>
+      `;
+      document.getElementById("report-form").addEventListener("submit", submitReport);
+    }
+
+    function submitReport(e) {
+      e.preventDefault();
+      const title = document.getElementById("report-title").value.trim();
+      const desc = document.getElementById("report-desc").value.trim();
+      const location = document.getElementById("report-location").value.trim();
+      const category = document.getElementById("report-category").value;
+      const photoInput = document.getElementById("report-photo");
+
+      let photo = "";
+      if (photoInput.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          photo = event.target.result;
+          saveReportData(title, desc, location, category, photo);
+        };
+        reader.readAsDataURL(photoInput.files[0]);
+      } else {
+        saveReportData(title, desc, location, category, photo);
+      }
+    }
+
+    function saveReportData(title, desc, location, category, photo) {
+      let reports = getReports();
+      reports.push({ title, desc, location, category, photo, user: currentUser.username, status: "Pending" });
+      saveReports(reports);
+      alert("✅ Report submitted.");
+      loadMyReports();
+    }
+
+    function loadMyReports() {
+      let reports = getReports().filter(r => r.user === currentUser.username);
+      let html = `<h2 class="text-2xl font-bold mb-4">My Reports</h2>`;
+      if (reports.length === 0) html += `<p>No reports yet.</p>`;
+      reports.forEach(r => {
+        html += `
+          <div class="p-4 border rounded-xl mb-3 bg-white shadow-md">
+            <h3 class="font-bold">${r.title} (${r.category})</h3>
+            <p>${r.desc}</p>
+            <p class="text-sm text-gray-600">📍 ${r.location}</p>
+            ${r.photo ? `<img src="${r.photo}" class="mt-2 w-32 h-32 object-cover rounded-lg">` : ""}
+            <p class="mt-2 text-sm">Status: <span class="font-semibold">${r.status}</span></p>
+          </div>
+        `;
+      });
+      document.getElementById("page-content").innerHTML = html;
+    }
+
+    // Authority Page
+    function loadAuthorityReports() {
+      let reports = getReports();
+      let html = `<h2 class="text-2xl font-bold mb-4">Citizen Reports</h2>`;
+      if (reports.length === 0) html += `<p>No reports yet.</p>`;
+      reports.forEach((r, i) => {
+        html += `
+          <div class="p-4 border rounded-xl mb-3 bg-white shadow-md">
+            <h3 class="font-bold">${r.title} (${r.category})</h3>
+            <p>${r.desc}</p>
+            <p class="text-sm text-gray-600">📍 ${r.location}</p>
+            ${r.photo ? `<img src="${r.photo}" class="mt-2 w-32 h-32 object-cover rounded-lg">` : ""}
+            <p class="mt-2 text-sm">Reported by: ${r.user}</p>
+            <button onclick="resolveReport(${i})" class="mt-2 px-4 py-2 rounded-xl ${r.status==='Resolved' ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600 text-white'}">
+              ${r.status==='Resolved' ? 'Resolved' : 'Resolve'}
+            </button>
+          </div>
+        `;
+      });
+      document.getElementById("page-content").innerHTML = html;
+    }
+
+    function resolveReport(index) {
+      let reports = getReports();
+      if (reports[index].status !== "Resolved") {
+        reports[index].status = "Resolved";
+        saveReports(reports);
+        loadAuthorityReports();
+      }
+    }
+
+    // Profile
+    document.getElementById("profile-btn").addEventListener("click", () => {
+      document.getElementById("profile-dropdown").classList.toggle("hidden");
+    });
+
+    function logout() {
+      localStorage.removeItem("loggedInUser");
+      currentUser = null;
+      showLogin();
+    }
+
+    // On Load
+    window.onload = () => {
+      let logged = JSON.parse(localStorage.getItem("loggedInUser"));
+      if (logged) {
+        currentUser = logged;
+        showDashboard(logged);
+      } else {
+        showLogin();
+      }
+    };
+
+    document.getElementById("registration-form").addEventListener("submit", registerUser);
+    document.getElementById("login-form").addEventListener("submit", loginUser);
+  </script>
+</body>
+</html>
+
+
